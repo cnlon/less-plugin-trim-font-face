@@ -1,5 +1,5 @@
 const {ANY} = require('./common')
-const FontFaceTrimmer = require('./FontFaceTrimmer')
+const TrimFontFace = require('./TrimFontFace')
 
 module.exports = class LessPluginTrimFontFace {
     static get ANY () {
@@ -11,7 +11,7 @@ module.exports = class LessPluginTrimFontFace {
     }
 
     install (less, pluginManager) {
-        const trimmer = new FontFaceTrimmer(this.option, less)
+        const trimmer = new TrimFontFace(this.option, less)
         pluginManager.addVisitor(trimmer)
     }
 }

@@ -1,6 +1,6 @@
 const {ANY, getValue} = require('./common')
 
-module.exports = class FontFaceTrimmer {
+module.exports = class TrimFontFace {
 
     get isReplacing () {
         return true
@@ -68,7 +68,6 @@ module.exports = class FontFaceTrimmer {
                 const fontRuleSet = this._option[family]
                     || this._option[ANY]
                 if (fontRuleSet) {
-                    console.log(family)
                     this._fontRuleSet = fontRuleSet
                 }
             } else if (nameString === 'src') {
