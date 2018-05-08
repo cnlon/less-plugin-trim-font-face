@@ -11,14 +11,11 @@ module.exports = class TrimFontFace {
     }
 
     /**
-     * @param {string|Array|Object} option
+     * @param {Array|Object} option
      * @param {Object} less
      */
 
     constructor (option, less) {
-        if (typeof option === 'string') {
-            option = [option]
-        }
         if (Array.isArray(option)) {
             option = {
                 [ANY]: option
