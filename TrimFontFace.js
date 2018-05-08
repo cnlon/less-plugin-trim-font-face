@@ -102,13 +102,10 @@ module.exports = class TrimFontFace {
 
     visitExpression (expressionNode) {
         if (this._inSrcRule === true && this._fontRuleSet) {
-            let url = ''
             let format = ''
             let isLocal = false
             for (const n of expressionNode.value) {
-                if (n.type === 'Url') {
-                    url = getValue(n.value)
-                } else if (n.type === 'Call') {
+                if (n.type === 'Call') {
                     if (n.name === 'format') {
                         format = getValue(n.args)
                     } else if (n.name === 'local') {
