@@ -22,18 +22,22 @@ module.exports = class TrimFontFace {
             }
         }
         this._option = {}
-        for (let key of Object.keys(option)) {
-            const formats = Array.isArray(option[key])
-                ? option[key]
-                : [option[key]]
-            this._option[key] = new Set(formats)
+        for (const key of Object.keys(option)) {
+            let value = option[key]
+            if (Array.isArray(value)) {
+                value = value.reduce((res, val) => {
+                    res[val] = true
+                    return res
+                }, {})
+            }
+            this._option[key] = value
         }
 
         this._visitor = new less.visitors.Visitor(this)
 
         this._inDirective = false
         this._inSrcRule = false
-        this._fontRuleSet = null
+        this._fontFormatUrls = null
     }
 
     run (root) {
@@ -62,11 +66,8 @@ module.exports = class TrimFontFace {
             const nameString = getValue(name)
             if (nameString === 'font-family') {
                 const family = getValue(value)
-                const fontRuleSet = this._option[family]
+                this._fontFormatUrls = this._option[family]
                     || this._option[ANY]
-                if (fontRuleSet) {
-                    this._fontRuleSet = fontRuleSet
-                }
             } else if (nameString === 'src') {
                 this._inSrcRule = true
             }
@@ -98,7 +99,8 @@ module.exports = class TrimFontFace {
     }
 
     visitExpression (expressionNode) {
-        if (this._inSrcRule === true && this._fontRuleSet) {
+        if (this._inSrcRule === true && this._fontFormatUrls) {
+            let urlNode = null
             let format = ''
             let isLocal = false
             for (const n of expressionNode.value) {
@@ -108,9 +110,16 @@ module.exports = class TrimFontFace {
                     } else if (n.name === 'local') {
                         isLocal = true
                     }
+                } else if (n.type === 'Url') {
+                    urlNode = n
                 }
             }
-            if (!this._fontRuleSet.has(format) && !isLocal) {
+            const url = this._fontFormatUrls[format]
+            if (url) {
+                if (urlNode && typeof url === 'string') {
+                    urlNode.value.value = url
+                }
+            } else if (!isLocal) {
                 expressionNode._toDelete = true
             }
         }
