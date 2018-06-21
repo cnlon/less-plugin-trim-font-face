@@ -1,6 +1,6 @@
 {
   "name": "less-plugin-trim-font-face",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Trim useless formats in `@font-face`",
   "main": "index.js",
   "scripts": {
