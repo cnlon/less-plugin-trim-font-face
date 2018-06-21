@@ -3,7 +3,7 @@
 [![npm version](https://badge.fury.io/js/less-plugin-trim-font-face.svg)](https://badge.fury.io/js/less-plugin-trim-font-face)
 [![js-standard-style](https://img.shields.io/badge/code%20style-standard-brightgreen.svg)](http://standardjs.com)
 
-Trim useless format in `@font-face`
+Trim useless formats in `@font-face`
 
 # Promgrammatic usage
 
@@ -19,7 +19,7 @@ less.render('You less source', {
 })
 ```
 
-It will trim useless font formats but `woff` if `font-family` equals `iconfont` in `@font-face` directives.
+It will trim useless font formats but `woff` if `font-family` is `iconfont` in `@font-face` directives.
 
 For example. If your less source like:
 
