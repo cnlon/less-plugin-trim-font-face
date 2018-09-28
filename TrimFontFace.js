@@ -35,8 +35,10 @@ module.exports = class TrimFontFace {
 
         this._visitor = new less.visitors.Visitor(this)
 
-        this._inDirective = false
-        this._inSrcRule = false
+        // Less renamed Directive -> AtRule & Rule -> Declaration from v3.0.0
+        // https://github.com/less/less.js/blob/master/CHANGELOG.md#300
+        this._inAtRule = false
+        this._inSrcDeclaration = false
         this._fontFormatUrls = null
     }
 
@@ -44,44 +46,56 @@ module.exports = class TrimFontFace {
         return this._visitor.visit(root)
     }
 
-    visitDirective (directiveNode) {
-        if (directiveNode.name === '@font-face') {
-            this._inDirective = true
+    visitAtRule (atRuleNode) {
+        if (atRuleNode.name === '@font-face') {
+            this._inAtRule = true
         }
-        return directiveNode
+        return atRuleNode
+    }
+
+    visitDirective (directiveNode) {
+        return this.visitAtRule(directiveNode)
+    }
+
+    visitAtRuleOut (atRuleNode) {
+        if (this._inAtRule !== false) {
+            this._inAtRule = false
+
+            const declarationNode = atRuleNode.rules[0]
+            declarationNode.rules = declarationNode.rules.filter(n => !n._toDelete)
+        }
     }
 
     visitDirectiveOut (directiveNode) {
-        if (this._inDirective !== false) {
-            this._inDirective = false
-
-            const ruleNode = directiveNode.rules[0]
-            ruleNode.rules = ruleNode.rules.filter(n => !n._toDelete)
-        }
+        return this.visitAtRuleOut(directiveNode)
     }
 
-    visitRule (ruleNode) {
-        if (this._inDirective === true) {
-            const {type, name, value} = ruleNode
+    visitDeclaration (declarationNode) {
+        if (this._inAtRule === true) {
+            const {name, value} = declarationNode
             const nameString = getValue(name)
             if (nameString === 'font-family') {
                 const family = getValue(value)
                 this._fontFormatUrls = this._option[family]
                     || this._option[ANY]
             } else if (nameString === 'src') {
-                this._inSrcRule = true
+                this._inSrcDeclaration = true
             }
         }
-        return ruleNode
+        return declarationNode
     }
 
-    visitRuleOut (ruleNode) {
-        if (this._inSrcRule !== false) {
-            this._inSrcRule = false
+    visitRule (ruleNode) {
+        return this.visitDeclaration(ruleNode)
+    }
+
+    visitDeclarationOut (declarationNode) {
+        if (this._inSrcDeclaration !== false) {
+            this._inSrcDeclaration = false
 
             let toDelete = true
             let newValueArray = []
-            for (const n of ruleNode.value.value) {
+            for (const n of declarationNode.value.value) {
                 if (n._toDelete) {
                     continue
                 }
@@ -91,15 +105,19 @@ module.exports = class TrimFontFace {
                 newValueArray.push(n)
             }
             if (toDelete) {
-                ruleNode._toDelete = true
+                declarationNode._toDelete = true
             } else {
-                ruleNode.value.value = newValueArray
+                declarationNode.value.value = newValueArray
             }
         }
     }
 
+    visitRuleOut (ruleNode) {
+        return this.visitDeclarationOut(ruleNode)
+    }
+
     visitExpression (expressionNode) {
-        if (this._inSrcRule === true && this._fontFormatUrls) {
+        if (this._inSrcDeclaration === true && this._fontFormatUrls) {
             let urlNode = null
             let format = ''
             let isLocal = false
