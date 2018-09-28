@@ -3,7 +3,7 @@
 [![npm version](https://badge.fury.io/js/less-plugin-trim-font-face.svg)](https://badge.fury.io/js/less-plugin-trim-font-face)
 [![js-standard-style](https://img.shields.io/badge/code%20style-standard-brightgreen.svg)](http://standardjs.com)
 
-Trim useless formats in `@font-face`
+Trim useless formats in `@font-face` of Less files. Compatible with Less v2 and v3.
 
 # Promgrammatic usage
 
