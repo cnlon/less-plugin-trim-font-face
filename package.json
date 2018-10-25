@@ -14,6 +14,12 @@
     "type": "git",
     "url": "git+https://github.com/cnlon/less-plugin-trim-font-face.git"
   },
+  "keywords": [
+    "less",
+    "less plugin",
+    "trim",
+    "font-face"
+  ],
   "author": "lon (https://lon.im)",
   "license": "MIT"
 }
